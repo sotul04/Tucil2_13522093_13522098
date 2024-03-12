@@ -162,20 +162,20 @@ func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, flo
 
 	if dx < 400 {
 		r_x = 400.0 / dx
-		pref_x = 530
-	} else if dx > 535 {
-		pref_x = int(dx) + 130
+		pref_x = 500
+	} else if dx > 550 {
+		pref_x = int(dx) + 100
 	}
 
 	if dy < 400 {
 		r_y = 400.0 / dy
-		pref_y = 530
-	} else if dy > 535 {
-		pref_y = int(dy) + 130
+		pref_y = 500
+	} else if dy > 550 {
+		pref_y = int(dy) + 100
 	}
 
-	add_x = 65 - min_x*r_x
-	add_y = 65 - min_y*r_y
+	add_x = 50 - min_x*r_x
+	add_y = 50 - min_y*r_y
 
 	return pref_x, pref_y, r_x, r_y, add_x, add_y
 }
@@ -235,7 +235,7 @@ func main() {
 	points := BezierPoints{}
 	// points.insertLast(point1, point2, point3, point4)
 	points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
-	curve := points.findCurve(7)
+	curve := points.findCurve(10)
 
-	drawSketch(curve, points, 7)
+	drawSketch(curve, points, 10)
 }
