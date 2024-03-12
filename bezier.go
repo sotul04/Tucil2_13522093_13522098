@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"strconv"
 
 	"github.com/fogleman/gg"
 )
@@ -95,46 +97,145 @@ func findMidPoint(bp BezierPoints) (BezierPoints, BezierPoints, BezierPoints) {
 
 }
 
-func drawBezierCurve(dc *gg.Context, points BezierPoints, corner BezierPoints) {
-	dc.MoveTo(points.list[0].x, points.list[0].y)
-	for i := 1; i < points.neff; i++ {
-		dc.LineTo(points.list[i].x, points.list[i].y)
-	}
-	dc.SetRGB(1, 0, 0)
-	dc.SetLineWidth(2)
-	dc.MoveTo(corner.list[0].x, corner.list[0].y)
-	for i := 1; i < corner.neff; i++ {
-		dc.LineTo(corner.list[i].x, corner.list[i].y)
-	}
-	dc.SetRGB(1, 1, 1)
+// func drawBezierCurve(dc *gg.Context, points BezierPoints, corner BezierPoints) {
 
-	dc.Stroke()
+// 	dc.SetRGB(1, 0, 0)
+// 	dc.MoveTo(points.list[0].x, points.list[0].y)
+// 	for i := 1; i < points.neff; i++ {
+// 		dc.LineTo(points.list[i].x, points.list[i].y)
+// 	}
+// 	dc.SetLineWidth(2.5)
+// 	dc.Stroke()
+
+// 	dc.SetRGB(0.2, 0.4, 1)
+// 	dc.MoveTo(corner.list[0].x, corner.list[0].y)
+// 	for i := 1; i < corner.neff; i++ {
+// 		dc.LineTo(corner.list[i].x, corner.list[i].y)
+// 	}
+// 	dc.SetLineWidth(1)
+// 	dc.Stroke()
+
+// 	dc.SetRGB(0, 1, 0)
+// 	for i := 0; i < points.neff; i++ {
+// 		dc.DrawPoint(points.list[i].x, points.list[i].y, 1)
+// 		dc.Stroke()
+// 	}
+
+// 	dc.SetRGB(1, 1, 0.5)
+// 	for i := 0; i < corner.neff; i++ {
+// 		dc.DrawPoint(corner.list[i].x, corner.list[i].y, 1)
+// 		dc.Stroke()
+// 	}
+// }
+
+func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, float64, float64) {
+	min_x := corner.list[0].x
+	min_y := corner.list[0].y
+
+	max_x := corner.list[0].x
+	max_y := corner.list[0].y
+
+	pref_x := 600
+	pref_y := 600
+
+	r_x := float64(1)
+	r_y := float64(1)
+
+	add_x := float64(0)
+	add_y := float64(0)
+
+	for i := 1; i < corner.neff; i++ {
+		if min_x > corner.list[i].x {
+			min_x = corner.list[i].x
+		} else if max_x < corner.list[i].x {
+			max_x = corner.list[i].x
+		}
+		if min_y > corner.list[i].y {
+			min_y = corner.list[i].y
+		} else if max_y < corner.list[i].y {
+			max_y = corner.list[i].y
+		}
+	}
+
+	dx := max_x - min_x
+	dy := max_y - min_y
+
+	if dx < 400 {
+		r_x = 400.0 / dx
+		pref_x = 530
+	} else if dx > 535 {
+		pref_x = int(dx) + 130
+	}
+
+	if dy < 400 {
+		r_y = 400.0 / dy
+		pref_y = 530
+	} else if dy > 535 {
+		pref_y = int(dy) + 130
+	}
+
+	add_x = 65 - min_x*r_x
+	add_y = 65 - min_y*r_y
+
+	return pref_x, pref_y, r_x, r_y, add_x, add_y
+}
+
+func drawSketch(points, corner BezierPoints, iter int) {
+	pref_x, pref_y, r_x, r_y, add_x, add_y := getPreferredDimension(corner)
+
+	for i := 1; i <= iter; i++ {
+		step := int(math.Pow(2, float64(iter-i)))
+
+		newSketch := gg.NewContext(pref_x, pref_y)
+		newSketch.SetRGB(1, 0, 0)
+		newSketch.InvertY()
+
+		newSketch.MoveTo(r_x*points.list[0].x+add_x, r_y*points.list[0].y+add_y)
+		for i := 0; i < points.neff; i += step {
+			newSketch.LineTo(r_x*points.list[i].x+add_x, r_y*points.list[i].y+add_y)
+		}
+		newSketch.SetLineWidth(2.5)
+		newSketch.Stroke()
+
+		newSketch.SetRGB(0.2, 0.4, 1)
+		newSketch.MoveTo(r_x*corner.list[0].x+add_x, r_y*corner.list[0].y+add_y)
+		for i := 1; i < corner.neff; i++ {
+			newSketch.LineTo(r_x*corner.list[i].x+add_x, r_y*corner.list[i].y+add_y)
+		}
+		newSketch.SetLineWidth(1)
+		newSketch.Stroke()
+
+		newSketch.SetRGB(0, 1, 0)
+		for i := 0; i < points.neff; i += step {
+			newSketch.DrawPoint(r_x*points.list[i].x+add_x, r_y*points.list[i].y+add_y, 1.2)
+			newSketch.Stroke()
+		}
+
+		newSketch.SetRGB(1, 1, 0.5)
+		for i := 0; i < corner.neff; i++ {
+			newSketch.DrawPoint(r_x*corner.list[i].x+add_x, r_y*corner.list[i].y+add_y, 1.2)
+			newSketch.Stroke()
+		}
+
+		if err := newSketch.SavePNG("bezier_curve_" + strconv.Itoa(i) + ".png"); err != nil {
+			fmt.Println("Error saving PNG:", err)
+		}
+	}
 }
 
 func main() {
-	point1 := Point{30, 30}
-	point2 := Point{220, 380}
-	point3 := Point{400, 20}
-	point4 := Point{450, 375}
-	// point5 := Point{400, 10}
-	// point6 := Point{540, 120}
-	// point7 := Point{570, 350}
-	// point8 := Point{415, 380}
+	point1 := Point{-50, 350}
+	point2 := Point{30, 30}
+	point3 := Point{260, 340}
+	point4 := Point{360, 189}
+	point5 := Point{230, 110}
+	point6 := Point{430, 50}
+	point7 := Point{550, 190}
+	point8 := Point{445, 300}
 	points := BezierPoints{}
-	points.insertLast(point1, point2, point3, point4)
-	// points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
-	// points.insertLast(point1, point2, point3)
+	// points.insertLast(point1, point2, point3, point4)
+	points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
 	curve := points.findCurve(7)
 
-	const W = 600
-	const H = 400
-
-	dc := gg.NewContext(W, H)
-	dc.InvertY()
-
-	drawBezierCurve(dc, curve, points)
-
-	if err := dc.SavePNG("bezier_curve_2.png"); err != nil {
-		fmt.Println("Error saving PNG:", err)
-	}
+	drawSketch(curve, points, 7)
 }
