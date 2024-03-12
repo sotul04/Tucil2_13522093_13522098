@@ -97,37 +97,6 @@ func findMidPoint(bp BezierPoints) (BezierPoints, BezierPoints, BezierPoints) {
 
 }
 
-// func drawBezierCurve(dc *gg.Context, points BezierPoints, corner BezierPoints) {
-
-// 	dc.SetRGB(1, 0, 0)
-// 	dc.MoveTo(points.list[0].x, points.list[0].y)
-// 	for i := 1; i < points.neff; i++ {
-// 		dc.LineTo(points.list[i].x, points.list[i].y)
-// 	}
-// 	dc.SetLineWidth(2.5)
-// 	dc.Stroke()
-
-// 	dc.SetRGB(0.2, 0.4, 1)
-// 	dc.MoveTo(corner.list[0].x, corner.list[0].y)
-// 	for i := 1; i < corner.neff; i++ {
-// 		dc.LineTo(corner.list[i].x, corner.list[i].y)
-// 	}
-// 	dc.SetLineWidth(1)
-// 	dc.Stroke()
-
-// 	dc.SetRGB(0, 1, 0)
-// 	for i := 0; i < points.neff; i++ {
-// 		dc.DrawPoint(points.list[i].x, points.list[i].y, 1)
-// 		dc.Stroke()
-// 	}
-
-// 	dc.SetRGB(1, 1, 0.5)
-// 	for i := 0; i < corner.neff; i++ {
-// 		dc.DrawPoint(corner.list[i].x, corner.list[i].y, 1)
-// 		dc.Stroke()
-// 	}
-// }
-
 func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, float64, float64) {
 	min_x := corner.list[0].x
 	min_y := corner.list[0].y
