@@ -112,14 +112,18 @@ func drawBezierCurve(dc *gg.Context, points BezierPoints, corner BezierPoints) {
 }
 
 func main() {
-	point1 := Point{200, 5}
-	point2 := Point{5, 200}
-	point3 := Point{200, 395}
-	point4 := Point{400, 395}
-	point5 := Point{595, 200}
-	point6 := Point{400, 5}
+	point1 := Point{30, 30}
+	point2 := Point{220, 380}
+	point3 := Point{400, 20}
+	point4 := Point{450, 375}
+	// point5 := Point{400, 10}
+	// point6 := Point{540, 120}
+	// point7 := Point{570, 350}
+	// point8 := Point{415, 380}
 	points := BezierPoints{}
-	points.insertLast(point1, point2, point3, point4, point5, point6, point1)
+	points.insertLast(point1, point2, point3, point4)
+	// points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
+	// points.insertLast(point1, point2, point3)
 	curve := points.findCurve(7)
 
 	const W = 600
@@ -130,7 +134,7 @@ func main() {
 
 	drawBezierCurve(dc, curve, points)
 
-	if err := dc.SavePNG("bezier_curve.png"); err != nil {
+	if err := dc.SavePNG("bezier_curve_2.png"); err != nil {
 		fmt.Println("Error saving PNG:", err)
 	}
 }
