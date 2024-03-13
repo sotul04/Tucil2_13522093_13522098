@@ -293,7 +293,7 @@ func main() {
 	curveBF := points.findCurveBruteForce()
 	elapsedTime := time.Since(start)
 
-	fmt.Println("Elapsed time: ", elapsedTime.Seconds())
+	fmt.Printf("Time Elapsed: %0.3fms", float64(elapsedTime.Milliseconds()))
 	drawSketch(curveDnC, points2, 12)
 	drawSketchBruteForce(curveBF, points)
 }
