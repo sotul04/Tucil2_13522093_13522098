@@ -98,20 +98,88 @@ func findMidPoint(bp BezierPoints) (BezierPoints, BezierPoints, BezierPoints) {
 
 }
 
-func getRatioPoint(p0, p1, p2 Point, ratio float64) Point {
-	one_min_r := 1 - ratio
-	end_x := one_min_r*one_min_r*p0.x + 2*one_min_r*ratio*p1.x + ratio*ratio*p2.x
-	end_y := one_min_r*one_min_r*p0.y + 2*one_min_r*ratio*p1.y + ratio*ratio*p2.y
-	return Point{end_x, end_y}
-}
-
-// func getRatioPoint4(p0, p1, p2, p3 Point, ratio float64) Point {
-// 	r1 := getRatioPoint(p0, p1, p2, ratio)
-// 	r2 := getRatioPoint(p1, p2, p3, ratio)
-// 	end_x := (1-ratio)*r1.x + ratio*r2.x
-// 	end_y := (1-ratio)*r1.y + ratio*r2.y
+// func getRatioPoint(p0, p1, p2 Point, ratio float64) Point {
+// 	one_min_r := 1 - ratio
+// 	end_x := one_min_r*one_min_r*p0.x + 2*one_min_r*ratio*p1.x + ratio*ratio*p2.x
+// 	end_y := one_min_r*one_min_r*p0.y + 2*one_min_r*ratio*p1.y + ratio*ratio*p2.y
 // 	return Point{end_x, end_y}
 // }
+
+func getRatioPoint4(points BezierPoints, sketch *gg.Context, ratio float64, pref_y int, r_x, r_y, add_x, add_y float64) Point {
+	if points.neff == 2 {
+		tmpPoint := Point{(1-ratio)*points.list[0].x + ratio*points.list[1].x, (1-ratio)*points.list[0].y + ratio*points.list[1].y}
+		sketch.SetRGB(0, 1, 0)
+		sketch.MoveTo(r_x*points.list[0].x+add_x, -(r_y*points.list[0].y+add_y)+float64(pref_y))
+		sketch.LineTo(r_x*points.list[1].x+add_x, -1*(r_y*points.list[1].y+add_y)+float64(pref_y))
+		sketch.SetLineWidth(0.3)
+		sketch.Stroke()
+		sketch.SetRGB(1, 1, 0)
+		sketch.DrawPoint(r_x*tmpPoint.x+add_x, -1*(r_y*tmpPoint.y+add_y)+float64(pref_y), 1)
+		sketch.Stroke()
+		return tmpPoint
+	}
+	newpoints := BezierPoints{}
+	for i := 1; i < points.neff; i++ {
+		sketch.SetRGB(0, 1, 0)
+		sketch.MoveTo(r_x*points.list[i-1].x+add_x, -(r_y*points.list[i-1].y+add_y)+float64(pref_y))
+		sketch.LineTo(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y))
+		sketch.SetLineWidth(0.3)
+		sketch.Stroke()
+		sketch.SetRGB(1, 1, 0)
+		tmpPoint := Point{(1-ratio)*points.list[i-1].x + ratio*points.list[i].x, (1-ratio)*points.list[i-1].y + ratio*points.list[i].y}
+		sketch.DrawPoint(r_x*tmpPoint.x+add_x, -1*(r_y*tmpPoint.y+add_y)+float64(pref_y), 1)
+		sketch.Stroke()
+		newpoints.insertLast(tmpPoint)
+	}
+	return getRatioPoint4(newpoints, sketch, ratio, pref_y, r_x, r_y, add_x, add_y)
+}
+
+func (bp BezierPoints) drawCurveBruteForce() BezierPoints {
+	pref_x, pref_y, r_x, r_y, add_x, add_y := getPreferredDimension(bp)
+
+	sketch := gg.NewContext(pref_x, pref_y)
+
+	points := BezierPoints{}
+
+	for i := 0; i < 41; i++ {
+		points.insertLast(getRatioPoint4(bp, sketch, float64(i)*0.025, pref_y, r_x, r_y, add_x, add_y))
+	}
+
+	sketch.SetRGB(1, 0, 0)
+	sketch.MoveTo(r_x*points.list[0].x+add_x, -1*(r_y*points.list[0].y+add_y)+float64(pref_y))
+	for i := 0; i < 40; i++ {
+		sketch.LineTo(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y))
+	}
+	sketch.SetLineWidth(2.5)
+	sketch.Stroke()
+
+	sketch.SetRGB(0.2, 0.5, 1)
+	for i := 0; i < 41; i++ {
+		sketch.DrawPoint(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y), 1.2)
+		sketch.Stroke()
+	}
+
+	sketch.SetRGB(0.2, 0.4, 1)
+	sketch.MoveTo(r_x*bp.list[0].x+add_x, -1*(r_y*bp.list[0].y+add_y)+float64(pref_y))
+	for i := 1; i < bp.neff; i++ {
+		sketch.LineTo(r_x*bp.list[i].x+add_x, -1*(r_y*bp.list[i].y+add_y)+float64(pref_y))
+	}
+	sketch.SetLineWidth(1.8)
+	sketch.Stroke()
+
+	sketch.SetRGB(1, 1, 0.5)
+	for i := 0; i < bp.neff; i++ {
+		sketch.DrawPoint(r_x*bp.list[i].x+add_x, -1*(r_y*bp.list[i].y+add_y)+float64(pref_y), 1.2)
+		sketch.DrawStringAnchored(fmt.Sprintf("P%d(%0.1f, %0.1f)", i, bp.list[i].x, bp.list[i].y), r_x*bp.list[i].x+add_x, -1*(r_y*bp.list[i].y+add_y)+float64(pref_y), 0.5, -0.5)
+		sketch.Stroke()
+	}
+
+	if err := sketch.SavePNG("bezier_curve_brute_force.png"); err != nil {
+		fmt.Println("Error saving PNG:", err)
+	}
+
+	return points
+}
 
 // func (points BezierPoints) findCurveBruteForce4() BezierPoints {
 // 	add := 0.01
@@ -124,16 +192,16 @@ func getRatioPoint(p0, p1, p2 Point, ratio float64) Point {
 // 	return curve
 // }
 
-func (points BezierPoints) findCurveBruteForce() BezierPoints {
-	add := 0.01
-	curve := BezierPoints{}
-	curve.insertLast(points.list[0])
-	for i := 1; i < 100; i++ {
-		curve.insertLast(getRatioPoint(points.list[0], points.list[1], points.list[2], float64(i)*(add)))
-	}
-	curve.insertLast(points.list[2])
-	return curve
-}
+// func (points BezierPoints) findCurveBruteForce() BezierPoints {
+// 	add := 0.01
+// 	curve := BezierPoints{}
+// 	curve.insertLast(points.list[0])
+// 	for i := 1; i < 100; i++ {
+// 		curve.insertLast(getRatioPoint(points.list[0], points.list[1], points.list[2], float64(i)*(add)))
+// 	}
+// 	curve.insertLast(points.list[2])
+// 	return curve
+// }
 
 func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, float64, float64) {
 	min_x := corner.list[0].x
@@ -238,39 +306,39 @@ func drawSketch(points, corner BezierPoints, iter int) {
 	}
 }
 
-func drawSketchBruteForce(points, corner BezierPoints) {
-	pref_x, pref_y, r_x, r_y, add_x, add_y := getPreferredDimension(corner)
+// func drawSketchBruteForce(points, corner BezierPoints) {
+// 	pref_x, pref_y, r_x, r_y, add_x, add_y := getPreferredDimension(corner)
 
-	newSketch := gg.NewContext(pref_x, pref_y)
-	newSketch.SetRGB(1, 0, 0)
-	newSketch.MoveTo(r_x*points.list[0].x+add_x, -1*(r_y*points.list[0].y+add_y)+float64(pref_y))
-	for i := 0; i < points.neff; i++ {
-		newSketch.LineTo(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y))
-	}
-	newSketch.SetLineWidth(2.5)
-	newSketch.Stroke()
-	newSketch.SetRGB(0.2, 0.4, 1)
-	newSketch.MoveTo(r_x*corner.list[0].x+add_x, -1*(r_y*corner.list[0].y+add_y)+float64(pref_y))
-	for i := 1; i < corner.neff; i++ {
-		newSketch.LineTo(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y))
-	}
-	newSketch.SetLineWidth(1)
-	newSketch.Stroke()
-	newSketch.SetRGB(0, 1, 0)
-	for i := 0; i < points.neff; i++ {
-		newSketch.DrawPoint(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y), 1.2)
-		newSketch.Stroke()
-	}
-	newSketch.SetRGB(1, 1, 0.5)
-	for i := 0; i < corner.neff; i++ {
-		newSketch.DrawPoint(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 1.2)
-		newSketch.DrawStringAnchored(fmt.Sprintf("P%d(%0.1f, %0.1f)", i, corner.list[i].x, corner.list[i].y), r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 0.5, -0.5)
-		newSketch.Stroke()
-	}
-	if err := newSketch.SavePNG("bezier_curve_brute_force.png"); err != nil {
-		fmt.Println("Error saving PNG:", err)
-	}
-}
+// 	newSketch := gg.NewContext(pref_x, pref_y)
+// 	newSketch.SetRGB(1, 0, 0)
+// 	newSketch.MoveTo(r_x*points.list[0].x+add_x, -1*(r_y*points.list[0].y+add_y)+float64(pref_y))
+// 	for i := 0; i < points.neff; i++ {
+// 		newSketch.LineTo(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y))
+// 	}
+// 	newSketch.SetLineWidth(2.5)
+// 	newSketch.Stroke()
+// 	newSketch.SetRGB(0.2, 0.4, 1)
+// 	newSketch.MoveTo(r_x*corner.list[0].x+add_x, -1*(r_y*corner.list[0].y+add_y)+float64(pref_y))
+// 	for i := 1; i < corner.neff; i++ {
+// 		newSketch.LineTo(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y))
+// 	}
+// 	newSketch.SetLineWidth(1)
+// 	newSketch.Stroke()
+// 	newSketch.SetRGB(0, 1, 0)
+// 	for i := 0; i < points.neff; i++ {
+// 		newSketch.DrawPoint(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y), 1.2)
+// 		newSketch.Stroke()
+// 	}
+// 	newSketch.SetRGB(1, 1, 0.5)
+// 	for i := 0; i < corner.neff; i++ {
+// 		newSketch.DrawPoint(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 1.2)
+// 		newSketch.DrawStringAnchored(fmt.Sprintf("P%d(%0.1f, %0.1f)", i, corner.list[i].x, corner.list[i].y), r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 0.5, -0.5)
+// 		newSketch.Stroke()
+// 	}
+// 	if err := newSketch.SavePNG("bezier_curve_brute_force.png"); err != nil {
+// 		fmt.Println("Error saving PNG:", err)
+// 	}
+// }
 
 func main() {
 	// point1 := Point{-50, 350}
@@ -282,18 +350,17 @@ func main() {
 	// point7 := Point{550, 190}
 	// point8 := Point{445, 300}
 	start := time.Now()
-	points := BezierPoints{[]Point{{165, 615}, {265, 115}, {765, 115}}, 3}
+	// points := BezierPoints{[]Point{{165, 615}, {265, 115}, {765, 115}, {865, 615}}, 4}
 	// points.insertLast(point1, point2, point3)
 	// points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
 
 	points2 := BezierPoints{[]Point{{1, 13}, {6, 13}, {1, 7}, {5, 5}, {8, 7}, {10, 12}, {14, 6}, {12, 2}, {8, 1}}, 9}
 	// fmt.Println(points2)
 
-	curveDnC := points2.findCurve(12)
-	curveBF := points.findCurveBruteForce()
+	curveDnC := points2.findCurve(9)
+	points2.drawCurveBruteForce()
 	elapsedTime := time.Since(start)
 
 	fmt.Printf("Time Elapsed: %0.3fms", float64(elapsedTime.Milliseconds()))
 	drawSketch(curveDnC, points2, 12)
-	drawSketchBruteForce(curveBF, points)
 }
