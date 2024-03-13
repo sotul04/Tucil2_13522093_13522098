@@ -13,7 +13,9 @@ export default function Chart({data}){
                             <Line.Segment
                                 point1={point1.point}
                                 point2={point2.point}
-                            />``
+                            />
+                            {point1.element}
+                            {point2.element}
                         </Fragment>
                     )
                 })}

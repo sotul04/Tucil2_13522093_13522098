@@ -12,3 +12,19 @@ export default function Input({title,value,onChange,...props}){
         </p>
     )
 }
+// const renderInputFields = () => {
+//     return (
+//       <ul>
+//         {Array.from({length: enteredPoint_Iterate.Points},(_,index) =>(
+          
+//           <InputXY 
+//             key={index} 
+//             type="number" 
+//             index={index}
+//             valuePoint={arrayPoint[index]} 
+//             onChangeValue ={handleInputChange}
+//             />
+//         ))}
+//       </ul>
+//     )
+//   }
