@@ -131,20 +131,20 @@ func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, flo
 
 	if dx < 400 {
 		r_x = 400.0 / dx
-		pref_x = 500
-	} else if dx > 550 {
-		pref_x = int(dx) + 100
+		pref_x = 550
+	} else if dx > 515 {
+		pref_x = int(dx) + 170
 	}
 
 	if dy < 400 {
 		r_y = 400.0 / dy
-		pref_y = 500
-	} else if dy > 550 {
-		pref_y = int(dy) + 100
+		pref_y = 550
+	} else if dy > 515 {
+		pref_y = int(dy) + 170
 	}
 
-	add_x = 50 - min_x*r_x
-	add_y = 50 - min_y*r_y
+	add_x = 85 - min_x*r_x
+	add_y = 85 - min_y*r_y
 
 	return pref_x, pref_y, r_x, r_y, add_x, add_y
 }
@@ -157,32 +157,32 @@ func drawSketch(points, corner BezierPoints, iter int) {
 
 		newSketch := gg.NewContext(pref_x, pref_y)
 		newSketch.SetRGB(1, 0, 0)
-		newSketch.InvertY()
 
-		newSketch.MoveTo(r_x*points.list[0].x+add_x, r_y*points.list[0].y+add_y)
+		newSketch.MoveTo(r_x*points.list[0].x+add_x, -1*(r_y*points.list[0].y+add_y)+float64(pref_y))
 		for i := 0; i < points.neff; i += step {
-			newSketch.LineTo(r_x*points.list[i].x+add_x, r_y*points.list[i].y+add_y)
+			newSketch.LineTo(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y))
 		}
 		newSketch.SetLineWidth(2.5)
 		newSketch.Stroke()
 
 		newSketch.SetRGB(0.2, 0.4, 1)
-		newSketch.MoveTo(r_x*corner.list[0].x+add_x, r_y*corner.list[0].y+add_y)
+		newSketch.MoveTo(r_x*corner.list[0].x+add_x, -1*(r_y*corner.list[0].y+add_y)+float64(pref_y))
 		for i := 1; i < corner.neff; i++ {
-			newSketch.LineTo(r_x*corner.list[i].x+add_x, r_y*corner.list[i].y+add_y)
+			newSketch.LineTo(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y))
 		}
 		newSketch.SetLineWidth(1)
 		newSketch.Stroke()
 
 		newSketch.SetRGB(0, 1, 0)
 		for i := 0; i < points.neff; i += step {
-			newSketch.DrawPoint(r_x*points.list[i].x+add_x, r_y*points.list[i].y+add_y, 1.2)
+			newSketch.DrawPoint(r_x*points.list[i].x+add_x, -1*(r_y*points.list[i].y+add_y)+float64(pref_y), 1.2)
 			newSketch.Stroke()
 		}
 
 		newSketch.SetRGB(1, 1, 0.5)
 		for i := 0; i < corner.neff; i++ {
-			newSketch.DrawPoint(r_x*corner.list[i].x+add_x, r_y*corner.list[i].y+add_y, 1.2)
+			newSketch.DrawPoint(r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 1.2)
+			newSketch.DrawStringAnchored(fmt.Sprintf("P%d(%0.1f, %0.1f)", i, corner.list[i].x, corner.list[i].y), r_x*corner.list[i].x+add_x, -1*(r_y*corner.list[i].y+add_y)+float64(pref_y), 0.5, -0.5)
 			newSketch.Stroke()
 		}
 
