@@ -50,10 +50,6 @@ function App() {
     )
   }
 
-  const dataToJSON = () => {
-    const jsonData = JSON.stringify(arrayPoint);
-    console.log(jsonData);
-  }
   const handleInputChange = (index, value) => {
     let newValueX = parseFloat(value[0])
     let newValueY = parseFloat(value[1])
@@ -72,12 +68,10 @@ function App() {
 
     })
     setArrayPoint(Array(parseFloat(event.target.value)).fill([0,0]));
-    setShowChart(false);
   }
 
   function handleClick(){
     setShowChart((prevState) => !prevState)
-    dataToJSON()
   }
   return (
     <section id="player">
