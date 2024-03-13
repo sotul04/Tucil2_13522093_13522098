@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/fogleman/gg"
 )
@@ -104,6 +105,25 @@ func getRatioPoint(p0, p1, p2 Point, ratio float64) Point {
 	return Point{end_x, end_y}
 }
 
+// func getRatioPoint4(p0, p1, p2, p3 Point, ratio float64) Point {
+// 	r1 := getRatioPoint(p0, p1, p2, ratio)
+// 	r2 := getRatioPoint(p1, p2, p3, ratio)
+// 	end_x := (1-ratio)*r1.x + ratio*r2.x
+// 	end_y := (1-ratio)*r1.y + ratio*r2.y
+// 	return Point{end_x, end_y}
+// }
+
+// func (points BezierPoints) findCurveBruteForce4() BezierPoints {
+// 	add := 0.01
+// 	curve := BezierPoints{}
+// 	curve.insertLast(points.list[0])
+// 	for i := 1; i < 100; i++ {
+// 		curve.insertLast(getRatioPoint4(points.list[0], points.list[1], points.list[2], points.list[3], float64(i)*(add)))
+// 	}
+// 	curve.insertLast(points.list[2])
+// 	return curve
+// }
+
 func (points BezierPoints) findCurveBruteForce() BezierPoints {
 	add := 0.01
 	curve := BezierPoints{}
@@ -159,6 +179,14 @@ func getPreferredDimension(corner BezierPoints) (int, int, float64, float64, flo
 		pref_y = 550
 	} else if dy > 515 {
 		pref_y = int(dy) + 170
+	}
+
+	if r_x > r_y {
+		pref_y = int(r_x * float64(pref_y) / r_y)
+		r_y = r_x
+	} else if r_y > r_x {
+		pref_x = int(r_y * float64(pref_x) / r_x)
+		r_x = r_y
 	}
 
 	add_x = 85 - min_x*r_x
@@ -245,20 +273,27 @@ func drawSketchBruteForce(points, corner BezierPoints) {
 }
 
 func main() {
-	point1 := Point{-50, 350}
-	point2 := Point{30, 30}
-	point3 := Point{260, 340}
+	// point1 := Point{-50, 350}
+	// point2 := Point{30, 30}
+	// point3 := Point{260, 340}
 	// point4 := Point{360, 189}
 	// point5 := Point{230, 110}
 	// point6 := Point{430, 50}
 	// point7 := Point{550, 190}
 	// point8 := Point{445, 300}
-	points := BezierPoints{}
-	points.insertLast(point1, point2, point3)
+	start := time.Now()
+	points := BezierPoints{[]Point{{165, 615}, {265, 115}, {765, 115}}, 3}
+	// points.insertLast(point1, point2, point3)
 	// points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
-	curveDnC := points.findCurve(10)
-	curveBF := points.findCurveBruteForce()
 
-	drawSketch(curveDnC, points, 10)
+	points2 := BezierPoints{[]Point{{1, 13}, {6, 13}, {1, 7}, {5, 5}, {8, 7}, {10, 12}, {14, 6}, {12, 2}, {8, 1}}, 9}
+	// fmt.Println(points2)
+
+	curveDnC := points2.findCurve(12)
+	curveBF := points.findCurveBruteForce()
+	elapsedTime := time.Since(start)
+
+	fmt.Println("Elapsed time: ", elapsedTime.Seconds())
+	drawSketch(curveDnC, points2, 12)
 	drawSketchBruteForce(curveBF, points)
 }
