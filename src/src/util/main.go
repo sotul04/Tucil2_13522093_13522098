@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"util/bezier"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 type Response struct {
-	Points []Point `json:"points"`
+	Points []bezier.Point `json:"points"`
 }
 
 type RequestBody struct {
@@ -40,19 +42,19 @@ func handleCurve(c *gin.Context) {
 		return
 	}
 
-	curvePointer := BezierPoints{}
+	curvePointer := bezier.BezierPoints{}
 
 	for _, i := range reqBody.Points {
-		curvePointer.insertLast(Point{i[0], i[1]})
+		curvePointer.InsertLast(bezier.Point{X: i[0], Y: i[1]})
 	}
 
-	curvePointer.insertLast()
-	curvePointer.drawCurveBruteForce()
-	poinnt := curvePointer.findCurve(reqBody.Iteration)
-	drawSketch(poinnt, curvePointer, reqBody.Iteration)
+	curvePointer.InsertLast()
+	curvePointer.DrawCurveBruteForce(33)
+	poinnt := curvePointer.FindCurve(reqBody.Iteration)
+	bezier.DrawSketch(poinnt, curvePointer, reqBody.Iteration)
 
 	response := Response{
-		Points: poinnt.list,
+		Points: poinnt.List,
 	}
 
 	responseJSON, err := json.Marshal(response)
