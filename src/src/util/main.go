@@ -4,7 +4,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"util/bezier"
 
@@ -35,7 +38,6 @@ func main() {
 func handleCurve(c *gin.Context) {
 	var reqBody RequestBody
 
-	// BindJSON digunakan untuk mengurai body permintaan JSON ke struct RequestBody
 	if err := c.BindJSON(&reqBody); err != nil {
 		fmt.Println("Error parsing JSON:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -48,8 +50,24 @@ func handleCurve(c *gin.Context) {
 		curvePointer.InsertLast(bezier.Point{X: i[0], Y: i[1]})
 	}
 
+	directory := "dummy/"
+
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	for _, file := range files {
+		filePath := filepath.Join(directory, file.Name())
+		err := os.Remove(filePath)
+		if err != nil {
+			fmt.Printf("Error removing %s: %v\n", filePath, err)
+		}
+	}
+
 	curvePointer.InsertLast()
-	curvePointer.DrawCurveBruteForce(33)
+	curvePointer.DrawCurveBruteForce(int(math.Pow(2, float64(reqBody.Iteration)) + 1))
 	poinnt := curvePointer.FindCurve(reqBody.Iteration)
 	bezier.DrawSketch(poinnt, curvePointer, reqBody.Iteration)
 

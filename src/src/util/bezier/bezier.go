@@ -77,7 +77,7 @@ func DrawSketch(points, corner BezierPoints, iter int) {
 		newSketch.SetLineWidth(2.5)
 		newSketch.Stroke()
 
-		newSketch.SetRGB(0.2, 0.4, 1)
+		newSketch.SetRGB(1, 0.7, 0.4)
 		newSketch.MoveTo(r_X*corner.List[0].X+add_X, -1*(r_Y*corner.List[0].Y+add_Y)+float64(pref_Y))
 		for i := 1; i < corner.Neff; i++ {
 			newSketch.LineTo(r_X*corner.List[i].X+add_X, -1*(r_Y*corner.List[i].Y+add_Y)+float64(pref_Y))
@@ -98,7 +98,7 @@ func DrawSketch(points, corner BezierPoints, iter int) {
 			newSketch.Stroke()
 		}
 
-		if err := newSketch.SavePNG("bezier/bezier_curve_" + strconv.Itoa(i) + ".png"); err != nil {
+		if err := newSketch.SavePNG("dummy/bezier_curve_" + strconv.Itoa(i) + ".png"); err != nil {
 			fmt.Println("Error saving PNG:", err)
 		}
 	}

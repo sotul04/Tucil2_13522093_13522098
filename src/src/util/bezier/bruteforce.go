@@ -42,10 +42,9 @@ func (bp BezierPoints) DrawCurveBruteForce(n_point int) BezierPoints {
 
 	points := BezierPoints{}
 
-	add := 1 / float64(n_point)
-	iterate := n_point+1
+	add := 1 / float64(n_point-1)
 
-	for i := 0; i < iterate; i++ {
+	for i := 0; i < n_point; i++ {
 		points.InsertLast(GetRatioPoint4(bp, sketch, float64(i)*add, pref_Y, r_X, r_Y, add_X, add_Y))
 	}
 
@@ -54,22 +53,22 @@ func (bp BezierPoints) DrawCurveBruteForce(n_point int) BezierPoints {
 	for i := 0; i < n_point; i++ {
 		sketch.LineTo(r_X*points.List[i].X+add_X, -1*(r_Y*points.List[i].Y+add_Y)+float64(pref_Y))
 	}
-	sketch.SetLineWidth(2.5)
+	sketch.SetLineWidth(3.1)
 	sketch.Stroke()
 
-	sketch.SetRGB(0.2, 0.5, 1)
-	for i := 0; i < 41; i++ {
-		sketch.DrawPoint(r_X*points.List[i].X+add_X, -1*(r_Y*points.List[i].Y+add_Y)+float64(pref_Y), 1.2)
-		sketch.Stroke()
-	}
-
-	sketch.SetRGB(0.2, 0.4, 1)
+	sketch.SetRGB(1, 0.7, 0.4)
 	sketch.MoveTo(r_X*bp.List[0].X+add_X, -1*(r_Y*bp.List[0].Y+add_Y)+float64(pref_Y))
 	for i := 1; i < bp.Neff; i++ {
 		sketch.LineTo(r_X*bp.List[i].X+add_X, -1*(r_Y*bp.List[i].Y+add_Y)+float64(pref_Y))
 	}
 	sketch.SetLineWidth(1.8)
 	sketch.Stroke()
+
+	sketch.SetRGB(0.2, 0.5, 1)
+	for i := 0; i < n_point; i++ {
+		sketch.DrawPoint(r_X*points.List[i].X+add_X, -1*(r_Y*points.List[i].Y+add_Y)+float64(pref_Y), 1.2)
+		sketch.Stroke()
+	}
 
 	sketch.SetRGB(1, 1, 0.5)
 	for i := 0; i < bp.Neff; i++ {
@@ -78,7 +77,7 @@ func (bp BezierPoints) DrawCurveBruteForce(n_point int) BezierPoints {
 		sketch.Stroke()
 	}
 
-	if err := sketch.SavePNG("bezier/bezier_curve_brute_force.png"); err != nil {
+	if err := sketch.SavePNG("dummy/bezier_curve_brute_force.png"); err != nil {
 		fmt.Println("Error saving PNG:", err)
 	}
 
