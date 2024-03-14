@@ -24,7 +24,7 @@ function App() {
         {Array.from({length: nContent},(_,arridx) => (
           <section className="challenge" key={arridx}>
             {Array.from({length: 5},(_,index) =>(
-              <InputXY 
+              <InputXY
                 index={arridx*5 + index}
                 key={index}
                 valuePoint={arrayPoint[arridx*5 + index]}
@@ -68,6 +68,7 @@ function App() {
 
     })
     setArrayPoint(Array(parseFloat(event.target.value)).fill([0,0]));
+    setShowChart(false)
   }
 
   function handleClick(){
