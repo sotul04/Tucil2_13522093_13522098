@@ -1,24 +1,17 @@
-import { Mafs, Line, Coordinates, useMovablePoint } from "mafs";
-import { Fragment,useState } from "react";
+import { Mafs, Line, Theme, Polyline, Coordinates, useMovablePoint } from "mafs";
 export default function Chart({data}){
-    const beziercurve = () => {
-        return(
-            <>
-                {data.slice(0,data.length - 1).map((_,index) => {
-                    let point1 = useMovablePoint(data[index])
-                    let point2 = useMovablePoint(data[index+1])
-                    return(
-                        <Fragment key={index}>
-                            <Line.Segment
-                                point1={point1.point}
-                                point2={point2.point}
-                            />
-                        </Fragment>
-                    )
-                })}
-            </>
-        )
+
+    function getDataPoint(){
+        let newDataPoints = Array.from({length: data.length},(_,index) =>
+        (
+            useMovablePoint(data[index]).point
+        ))
+
+        console.log('data : ',data);
+        console.log('newDataPoints : ',newDataPoints);
+        return newDataPoints
     }
+
     function handleMin(data,status){
         if (status == 'x'){
             let min = data[0][0]
@@ -65,10 +58,15 @@ export default function Chart({data}){
                     x: [handleMin(data,'x'),handleMax(data,'x')],
                     y: [handleMin(data,'y'),handleMax(data,'y')],
                 }} 
-                    preserveAspectRatio={false}>
-                <Coordinates.Cartesian
+                preserveAspectRatio={false}
+            >
+                <Coordinates.Cartesian/>
+                <Polyline 
+                    points={data}
+                    // points={getDataPoint()}
+                    color={Theme.blue}
                 />
-                    {beziercurve()}
+                {getDataPoint()}    
             </Mafs>
         </>
     );

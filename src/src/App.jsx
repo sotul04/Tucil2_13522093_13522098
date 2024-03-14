@@ -8,7 +8,7 @@ function App() {
     Points: 0,
     Iteration: 0
   })
-  const [arrayPoint, setArrayPoint] = useState([0,0])
+  const [arrayPoint, setArrayPoint] = useState([])
   const [showChart,setShowChart] = useState(false);
   const renderInputFields = () => {
     let nContent = 0
@@ -57,6 +57,7 @@ function App() {
     const newArrayPoint = [...arrayPoint];
     newArrayPoint[index] = newValue;
     setArrayPoint(newArrayPoint);
+    setShowChart(true);
   }
 
   function handleChangePoints(event) {
@@ -67,8 +68,24 @@ function App() {
       }
 
     })
-    setArrayPoint(Array(parseFloat(event.target.value)).fill([0,0]));
-    setShowChart(false)
+
+    setArrayPoint(prevState => {
+      let newArrayPoint;
+      if (event.target.value > arrayPoint.length){
+        newArrayPoint = Array(parseFloat(event.target.value)).fill([0,0])
+        for (let i = 0; i < prevState.length; i++){
+          newArrayPoint[i] = prevState[i]
+        }
+      } else if (event.target.value < arrayPoint.length){
+        newArrayPoint = prevState.splice(arrayPoint.length - 1, arrayPoint.length - event.target.value)
+      } else {
+        return prevState
+      }
+      console.log(newArrayPoint);
+      return newArrayPoint;
+      
+    
+    });
   }
 
   function handleClick(){
@@ -93,11 +110,13 @@ function App() {
         )}
       />
       {enteredPoint_Iterate.Points >= 2 && renderInputFields()}
-      {console.log(arrayPoint)}
+      {/* {console.log(arrayPoint)} */}
       <button onClick={handleClick}>CHART!!!</button>
-      {showChart && <Chart data={arrayPoint}/>}
-    </section>
+      {showChart && enteredPoint_Iterate.Points > 0 && <Chart data={arrayPoint} />
+}    </section>
   );
 }
 
 export default App;
+
+// N Points minus muncul pop up
