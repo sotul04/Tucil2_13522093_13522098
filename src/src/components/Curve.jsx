@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Coordinates, Plot, Line, Mafs, Point, Theme, useMovablePoint, useStopwatch, vec } from "mafs";
+import { Coordinates, Plot, Line, Mafs, Point, Theme, useMovablePoint, useStopwatch, vec, Text } from "mafs";
 import { easeInOutCubic } from "js-easing-functions";
 
 function getStepLine(collection, length, layer, t) {
@@ -48,8 +48,31 @@ function getAllPoints(collection) {
   return points;
 }
 
+function getMainView(corner) {
+  let min_x = corner[0][0];
+  let min_y = corner[0][1];
+  let max_x = corner[0][0];
+  let max_y = corner[0][1];
+  for (let i = 1; i < corner.length; i++) {
+    if (min_x > corner[i][0]) {
+      min_x = corner[i][0];
+    } else if (max_x < corner[i][0]) {
+      max_x = corner[i][0];
+    }
+    if (min_y > corner[i][1]) {
+      min_y = corner[i][1];
+    } else if (max_y < corner[i][1]) {
+      max_y = corner[i][1];
+    }
+  }
+  let dx = max_x-min_x;
+  let dy = max_y-min_y;
+  return [min_x-0.09*dx, max_x+0.09*dx, min_y-0.09*dy, max_y+0.09*dy];
+}
+
 export default function BezierCurves({ data }) {
   const [t, setT] = useState(0.5);
+  const [viewContent, setViewContent] = useState([]);
   const opacity = 1 - (2 * t - 1) ** 6;
 
   const movablePoints = data.map(([x, y]) => useMovablePoint([x, y]));
@@ -64,11 +87,16 @@ export default function BezierCurves({ data }) {
     endTime: duration,
   });
   useEffect(() => {
-    setTimeout(() => start(), 100);
+    setTimeout(() => start(), 1000);
   }, [start]);
+
   useEffect(() => {
     setT(easeInOutCubic(time, 0, 1, duration));
   }, [time]);
+
+  useEffect(() => {
+    setViewContent(getMainView(data)); // Move viewContent logic into useEffect
+  }, [data]);
 
   function drawAllLine(collection, color, customOpacity = opacity * 0.5) {
     return inNestedPairs(collection).map(([p1, p2], index) => (
@@ -82,6 +110,32 @@ export default function BezierCurves({ data }) {
     ));
   }
 
+  function pointPosition(color, size) {
+    return movablePoints.map(point => (
+      <Text 
+        x={point.x}
+        y={point.y}
+        color={color}
+        size={size}
+        attach="w"
+        attachDistance={15}
+      >
+        ({point.x.toFixed(1)}, {point.y.toFixed(1)})
+      </Text>
+    ));
+  }
+
+  function drawPoints(rad, color) {
+    return movablePoints.map((point, index) => (
+      <Point
+        key={index}
+        x={point.x}
+        y={point.y}
+        svgCircleProps={{ r: rad }}
+        color={color}
+      />
+    ));
+  }
 
   function drawMainPoints(collection) {
     return <Point 
@@ -107,10 +161,10 @@ export default function BezierCurves({ data }) {
 
   return (
     <div id="bjir">
-      <Mafs viewBox={{ x: [-5, 5], y: [-4, 4] }} zoom={{ min: 0.001, max: 5 }}>
+      <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{ min: 0.001, max: 5 }}>
         <Coordinates.Cartesian
-          xAxis={{ labels: false, axis: false }}
-          yAxis={{ labels: false, axis: false }}
+          xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
+          yAxis={{ lines: (viewContent[1]-viewContent[0])/20,labels: false, axis: false }}
         />
 
         {drawAllLine(
@@ -142,7 +196,10 @@ export default function BezierCurves({ data }) {
 
         {drawMainPoints(collection)}
 
-        {movablePoints.map(point => point.element)}
+        {pointPosition(Theme.foreground, 12)}
+
+        {/* {movablePoints.map(point => point.element)} */}
+        {drawPoints(6,Theme.indigo)}
       </Mafs>
       <br/>
 

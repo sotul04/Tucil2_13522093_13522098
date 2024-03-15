@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Coordinates, Line, Mafs, Point, Theme, useMovablePoint } from "mafs";
+import { Coordinates, Line, Mafs, Point, Theme, Text, useStopwatch } from "mafs";
 import { easeInOutCubic } from "js-easing-functions";
 
 function inPairs(arr) {
@@ -10,21 +10,45 @@ function inPairs(arr) {
   return pairs;
 }
 
+function getMainView(corner) {
+  let min_x = corner[0][0];
+  let min_y = corner[0][1];
+  let max_x = corner[0][0];
+  let max_y = corner[0][1];
+  for (let i = 1; i < corner.length; i++) {
+    if (min_x > corner[i][0]) {
+      min_x = corner[i][0];
+    } else if (max_x < corner[i][0]) {
+      max_x = corner[i][0];
+    }
+    if (min_y > corner[i][1]) {
+      min_y = corner[i][1];
+    } else if (max_y < corner[i][1]) {
+      max_y = corner[i][1];
+    }
+  }
+  let dx = max_x-min_x;
+  let dy = max_y-min_y;
+  return [min_x-0.09*dx, max_x+0.09*dx, min_y-0.09*dy, max_y+0.09*dy];
+}
+
 export default function DnCurves({ data, control, iterate }) {
   const [t, setT] = useState(0.5); // State for controlling opacity
-  const [iter, setIter] = useState(1);
+  const [iter, setIter] = useState(iterate);
   const [linePoints, setLinePoints] = useState([]);
+  const [viewContent, setViewContent] = useState([]);
 
   const opacity = 1 - (2 * t - 1) ** 6;
 
-  const corner = control.map(([x, y]) => useMovablePoint([x, y]));
-  const cornerPoints = corner.map(point => point.point);
+  const cornerPoints = control.map(p => p);
 
   useEffect(() => {
     refreshLines();
   }, [iter, data]);
 
-  let lines = data.map(([x, y]) => [x, y]);
+  useEffect(() => {
+    setViewContent(getMainView(control));
+  }, [control]); 
 
   function refreshLines() {
     const newLines = [];
@@ -44,6 +68,22 @@ export default function DnCurves({ data, control, iterate }) {
         opacity={opacity}
         color={color}
       />
+    ));
+  }
+
+  function pointPositoin(points, color, size) {
+    return points.map(([x,y]) => (
+      <Text 
+        key={`${x}_${y}`}
+        x={x}
+        y={y}
+        color={color}
+        size={size}
+        attach="w"
+        attachDistance={15}
+      >
+        ({x.toFixed(1)}, {y.toFixed(1)})
+      </Text>
     ));
   }
 
@@ -67,16 +107,24 @@ export default function DnCurves({ data, control, iterate }) {
   return (
     <div id="susy">
       <br />
-      <Mafs viewBox={{ x: [-5, 5], y: [-4, 4] }} zoom={{ min: 0.001, max: 5 }}>
+      <div className="rounded">
+      <Mafs 
+        viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} 
+        zoom={{ min: 0.001, max: 5 }}
+      >
         <Coordinates.Cartesian
-          xAxis={{ labels: false, axis: false }}
-          yAxis={{ labels: false, axis: false }}
+          xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
+          yAxis={{ lines: (viewContent[1]-viewContent[0])/20,labels: false, axis: false }}
         />
         {drawLineSegments(linePoints, Theme.indigo)}
         {drawPoints(linePoints, 3, Theme.green)}
         {drawLineSegments(cornerPoints, Theme.blue)}
-        {corner.map(point => point.element)}
+        {drawPoints(cornerPoints,5,Theme.pink)}
+        {pointPositoin(cornerPoints,Theme.foreground,12)}
       </Mafs>
+      </div>
+      <br/>
+      <p>Iteration: {iter}</p>
       <div className="p-4 border-gray-700 border-t bg-black text-white">
         <input
           type="range"

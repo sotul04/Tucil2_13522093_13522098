@@ -139,6 +139,9 @@ function App() {
       {console.log(arrayPoint)}
       <button onClick={handleClick}>CHART!!!</button>
       {/* {showChart && <Chart data={arrayPoint} />} */}
+      <br/>
+      <br/>
+      <br/>
       {showChart && <BezierCurves data={arrayPoint}/> }
       <br/>
       {showChart && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
