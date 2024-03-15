@@ -354,13 +354,15 @@ func main() {
 	// points.insertLast(point1, point2, point3)
 	// points.insertLast(point1, point2, point3, point4, point5, point6, point7, point8)
 
-	points2 := BezierPoints{[]Point{{1, 13}, {6, 13}, {1, 7}, {5, 5}, {8, 7}, {10, 12}, {14, 6}, {12, 2}, {8, 1}}, 9}
+	points2 := BezierPoints{[]Point{{1, 2}, {4, 10}, {7, 5}, {9, 8}, {10, 5}}, 5}
 	// fmt.Println(points2)
-
-	curveDnC := points2.findCurve(9)
+	curveDnC := points2.findCurve(5)
+	for idx, i := range curveDnC.list {
+		fmt.Println(idx+1, i)
+	}
 	points2.drawCurveBruteForce()
 	elapsedTime := time.Since(start)
 
 	fmt.Printf("Time Elapsed: %0.3fms", float64(elapsedTime.Milliseconds()))
-	drawSketch(curveDnC, points2, 12)
+	drawSketch(curveDnC, points2, 5)
 }

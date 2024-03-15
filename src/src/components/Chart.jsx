@@ -53,7 +53,7 @@ export default function Chart({data}){
     return(
         <>
             <Mafs 
-                zoom={{min: 0.1, max: 5}}
+                zoom={{min: 0.01, max: 5}}
                 viewBox={{
                     x: [handleMin(data,'x'),handleMax(data,'x')],
                     y: [handleMin(data,'y'),handleMax(data,'y')],
