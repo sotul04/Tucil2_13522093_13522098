@@ -27,14 +27,6 @@ function findCurve(points, length, t) {
   return findCurve(tmpoint, length - 1, t);
 }
 
-function inPairs(arr) {
-  const pairs = [];
-  for (let i = 0; i < arr.length - 1; i++) {
-    pairs.push([arr[i], arr[i + 1]]);
-  }
-  return pairs;
-}
-
 function inNestedPairs(collection) {
   const nestedPairs = [];
   let limit = collection.length - 1;
@@ -61,6 +53,7 @@ export default function BezierCurves({ data }) {
   const opacity = 1 - (2 * t - 1) ** 6;
 
   const movablePoints = data.map(([x, y]) => useMovablePoint([x, y]));
+
   const corner = movablePoints.map(point => point.point);
   const collection = [corner];
 
@@ -77,18 +70,6 @@ export default function BezierCurves({ data }) {
     setT(easeInOutCubic(time, 0, 1, duration));
   }, [time]);
 
-  function drawLineSegments(pointPath, color, customOpacity = opacity * 0.5) {
-    return inPairs(pointPath).map(([p1, p2], index) => (
-      <Line.Segment
-        key={index}
-        point1={p1}
-        point2={p2}
-        opacity={customOpacity}
-        color={color}
-      />
-    ));
-  }
-
   function drawAllLine(collection, color, customOpacity = opacity * 0.5) {
     return inNestedPairs(collection).map(([p1, p2], index) => (
       <Line.Segment
@@ -101,17 +82,6 @@ export default function BezierCurves({ data }) {
     ));
   }
 
-  function drawPoints(points, color) {
-    return points.map((point, index) => (
-      <Point
-        key={index}
-        x={point[0]}
-        y={point[1]}
-        color={color}
-        opacity={opacity}
-      />
-    ));
-  }
 
   function drawMainPoints(collection) {
     return <Point 
@@ -119,7 +89,7 @@ export default function BezierCurves({ data }) {
         x={collection[collection.length-1][0][0]}
         y={collection[collection.length-1][0][1]}
         color={Theme.red}
-        opacity={opacity}
+        svgCircleProps={{r:6}}
     />
   }
 
@@ -130,13 +100,13 @@ export default function BezierCurves({ data }) {
         x={point[0]}
         y={point[1]}
         color={Theme.green}
-        opacity={opacity}
+        svgCircleProps={{r:3}}
       />
     ))
   }
 
   return (
-    <div id="kontol">
+    <div id="bjir">
       <Mafs viewBox={{ x: [-5, 5], y: [-4, 4] }} zoom={{ min: 0.001, max: 5 }}>
         <Coordinates.Cartesian
           xAxis={{ labels: false, axis: false }}
@@ -174,9 +144,9 @@ export default function BezierCurves({ data }) {
 
         {movablePoints.map(point => point.element)}
       </Mafs>
+      <br/>
 
       <div className="p-4 border-gray-700 border-t bg-black text-white">
-        <span className="font-display">t =</span>{" "}
         <input
           type="range"
           min={0}

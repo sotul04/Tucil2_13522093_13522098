@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
 import { Point } from "mafs";
+import DnCurves from "./components/dncCurve";
 import BezierCurves from "./components/Curve";
 function App() {
   const [enteredPoint_Iterate, setEnteredPoint_Iterate] = useState({
@@ -12,6 +13,7 @@ function App() {
   })
   const [arrayPoint, setArrayPoint] = useState([0,0])
   const [showChart,setShowChart] = useState(false);
+  const [curvePoint, setCurvePoint] = useState([]);
   const renderInputFields = () => {
     let nContent = 0
     let nRest = 0
@@ -74,8 +76,8 @@ function App() {
   }
 
   const handleClick = async () => {
-    setShowChart((prevState) => !prevState);
     console.log("Chart clicked");
+    setShowChart(false);
 
     if (enteredPoint_Iterate.Points < 2) {
         console.log("n_point is unallowed");
@@ -98,11 +100,19 @@ function App() {
         });
 
         if (!response.ok) {
-            throw new Error("Failed to upload data");
+          throw new Error("Failed to upload data");
         }
-
+          
         const data = await response.json();
-        console.log("Data: ",data);
+        console.log(data.points);
+        const tempcurve = [];
+        for (let i = 0; i < data.points.length; i++) {
+          console.log(data.points[i].x, data.points[i].Y);
+          tempcurve.push([parseFloat(data.points[i].x), parseFloat(data.points[i].Y)]);
+        }
+        setCurvePoint(tempcurve);
+        console.log("Curve Point:", curvePoint);
+        setShowChart(true);
     } catch (error) {
         console.error("Error uploading data:", error.message);
     }
@@ -130,6 +140,8 @@ function App() {
       <button onClick={handleClick}>CHART!!!</button>
       {/* {showChart && <Chart data={arrayPoint} />} */}
       {showChart && <BezierCurves data={arrayPoint}/> }
+      <br/>
+      {showChart && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
     </section>
   );
 }
