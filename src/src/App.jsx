@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
 import { Point } from "mafs";
+import BezierCurves from "./components/Curve";
 function App() {
   const [enteredPoint_Iterate, setEnteredPoint_Iterate] = useState({
     Points: 0,
@@ -25,7 +26,7 @@ function App() {
         {Array.from({length: nContent},(_,arridx) => (
           <section className="challenge" key={arridx}>
             {Array.from({length: 5},(_,index) =>(
-              <InputXY 
+              <InputXY
                 index={arridx*5 + index}
                 key={index}
                 valuePoint={arrayPoint[arridx*5 + index]}
@@ -69,6 +70,7 @@ function App() {
 
     })
     setArrayPoint(Array(parseFloat(event.target.value)).fill([0,0]));
+    setShowChart(false)
   }
 
   const handleClick = async () => {
@@ -123,11 +125,11 @@ function App() {
           }}
         )}
       />
-      {/* <h2> U enter {enteredPoint_Iterate.Points} Points and {enteredPoint_Iterate.Iteration} Iteration</h2> */}
       {enteredPoint_Iterate.Points >= 2 && renderInputFields()}
       {console.log(arrayPoint)}
       <button onClick={handleClick}>CHART!!!</button>
-      {showChart && <Chart data={arrayPoint}/>}
+      {/* {showChart && <Chart data={arrayPoint} />} */}
+      {showChart && <BezierCurves data={arrayPoint}/> }
     </section>
   );
 }

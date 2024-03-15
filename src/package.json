@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "chart.js": "^4.4.2",
+    "easing-functions": "^1.0.1",
+    "js-easing-functions": "^1.0.3",
     "mafs": "^0.18.3",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

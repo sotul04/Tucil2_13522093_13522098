@@ -1,7 +1,6 @@
-import { Mafs, Line, Coordinates, useMovablePoint } from "mafs";
-import { Fragment } from "react";
+import { Mafs, Line, Coordinates, useMovablePoint, Theme } from "mafs";
+import { Fragment,useState } from "react";
 export default function Chart({data}){
-
     const beziercurve = () => {
         return(
             <>
@@ -11,22 +10,69 @@ export default function Chart({data}){
                     return(
                         <Fragment key={index}>
                             <Line.Segment
+                                color={Theme.pink}
                                 point1={point1.point}
                                 point2={point2.point}
                             />
-                            {point1.element}
-                            {point2.element}
                         </Fragment>
                     )
                 })}
             </>
         )
     }
-    
+    function handleMin(data,status){
+        if (status == 'x'){
+            let min = data[0][0]
+            for (let i = 0; i < data.length; i++){
+                if (min > data[i][0]){
+                    min = data[i][0]
+                }
+            }
+            return min*1.1
+        } else if (status == 'y'){
+            let min = data[0][1]
+            for (let i = 0; i < data.length; i++){
+                if (min > data[i][1]){
+                    min = data[i][1]
+                }
+            }
+            return min*1.1
+        }
+    }
+    function handleMax(data,status){
+        if (status == 'x'){
+            let max = data[0][0]
+            for (let i = 0; i < data.length; i++){
+                if (max < data[i][0]){
+                    max = data[i][0]
+                }
+            }
+            return max*1.1
+        } else if (status == 'y'){
+            let max = data[0][1]
+            for (let i = 0; i < data.length; i++){
+                if (max < data[i][1]){
+                    max = data[i][1]
+                }
+            }
+            return max*1.1
+        }
+    }
     return(
-        <Mafs viewBox={{x: [-10,10], y: [-10,10]}} preserveAspectRatio={false}>
-            <Coordinates.Cartesian/>
-                {beziercurve()}
-        </Mafs>
+        <>
+            <Mafs 
+                zoom={{min: 0.01, max: 5}}
+                viewBox={{
+                    x: [handleMin(data,'x'),handleMax(data,'x')],
+                    y: [handleMin(data,'y'),handleMax(data,'y')],
+                }} 
+                    preserveAspectRatio={false}>
+                <Coordinates.Cartesian
+                    xAxis={{labels:false, axis:false}}
+                    yAxis={{labels:false, axis:false}}
+                />
+                    {beziercurve()}
+            </Mafs>
+        </>
     );
 }
