@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Coordinates, Line, Mafs, Point, Theme, Text, useStopwatch } from "mafs";
-import { easeInOutCubic } from "js-easing-functions";
+import { Coordinates, Line, Mafs, Point, Theme, Text } from "mafs";
 
 function inPairs(arr) {
   const pairs = [];
@@ -29,16 +28,15 @@ function getMainView(corner) {
   }
   let dx = max_x-min_x;
   let dy = max_y-min_y;
-  return [min_x-0.09*dx, max_x+0.09*dx, min_y-0.09*dy, max_y+0.09*dy];
+  return [min_x-0.1*dx, max_x+0.1*dx, min_y-0.1*dy, max_y+0.1*dy];
 }
 
-export default function DnCurves({ data, control, iterate }) {
-  const [t, setT] = useState(0.5); // State for controlling opacity
+export default function DnCurves({ data, control, iterate, time, type}) {
   const [iter, setIter] = useState(iterate);
   const [linePoints, setLinePoints] = useState([]);
   const [viewContent, setViewContent] = useState([]);
 
-  const opacity = 1 - (2 * t - 1) ** 6;
+  const opacity = 1 - (2 * 0.5 - 1) ** 6;
 
   const cornerPoints = control.map(p => p);
 
@@ -106,8 +104,8 @@ export default function DnCurves({ data, control, iterate }) {
 
   return (
     <div id="susy">
-      <br />
       <div className="rounded">
+        <p>Time Elapsed: {time}ms</p>
       <Mafs 
         viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} 
         zoom={{ min: 0.001, max: 5 }}
@@ -124,17 +122,19 @@ export default function DnCurves({ data, control, iterate }) {
       </Mafs>
       </div>
       <br/>
-      <p>Iteration: {iter}</p>
-      <div className="p-4 border-gray-700 border-t bg-black text-white">
-        <input
-          type="range"
-          min={1}
-          max={iterate}
-          step={1}
-          value={iter}
-          onChange={handleInputChange}
-        />
-      </div>
+      {type===0 && <div>
+        <p>Iteration: {iter}</p>
+          <div className="p-4 border-gray-700 border-t bg-black text-white">
+            <input
+              type="range"
+              min={1}
+              max={iterate}
+              step={1}
+              value={iter}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>}
     </div>
   );
 }

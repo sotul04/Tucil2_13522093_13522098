@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import InputXY from "./components/InputXY";
 import Header from "./components/Header";
 import Input from "./components/Input";
@@ -14,6 +14,8 @@ function App() {
   const [arrayPoint, setArrayPoint] = useState([0,0])
   const [showChart,setShowChart] = useState(false);
   const [curvePoint, setCurvePoint] = useState([]);
+  const [typeSearch, setTypeSearch] = useState(false);
+  const [timeElapse, setTimeElapsed] = useState(0);
   const renderInputFields = () => {
     let nContent = 0
     let nRest = 0
@@ -75,6 +77,13 @@ function App() {
     setShowChart(false)
   }
 
+  const handleCheckboxChange = () => {
+    console.log('Before: ', typeSearch);
+    var temp = typeSearch;
+    setTypeSearch((prevState) => !prevState);
+    console.log('After: ', typeSearch);
+  };
+
   const handleClick = async () => {
     console.log("Chart clicked");
     setShowChart(false);
@@ -90,8 +99,11 @@ function App() {
       iteration: parseInt(enteredPoint_Iterate.Iteration)
     };
 
+    let typeEndPoint = typeSearch ? "http://localhost:8080/brute-force" : "http://localhost:8080/devidenconquer" ;
+
+    console.log(typeEndPoint);
     try {
-        const response = await fetch("http://localhost:8080/find-curve", {
+        const response = await fetch(typeEndPoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -102,16 +114,16 @@ function App() {
         if (!response.ok) {
           throw new Error("Failed to upload data");
         }
-          
+        
         const data = await response.json();
         console.log(data.points);
+        console.log("Elapsed time: ",data.time, "ms");
+        setTimeElapsed(parseFloat(data.time));
         const tempcurve = [];
         for (let i = 0; i < data.points.length; i++) {
-          console.log(data.points[i].x, data.points[i].Y);
           tempcurve.push([parseFloat(data.points[i].x), parseFloat(data.points[i].Y)]);
         }
         setCurvePoint(tempcurve);
-        console.log("Curve Point:", curvePoint);
         setShowChart(true);
     } catch (error) {
         console.error("Error uploading data:", error.message);
@@ -120,6 +132,15 @@ function App() {
   return (
     <section id="player">
       <Header />
+      <br/>
+      <div className='type-search'>
+          <p>Devide n Conquer</p>
+          <label className='switch'>
+            <input type='checkbox' checked={typeSearch} onChange={handleCheckboxChange}></input>
+            <span className='slider'></span>
+          </label>
+          <p>Brute Force</p>
+        </div>
       <Input 
         title="N Points" 
         value={enteredPoint_Iterate.Points} 
@@ -142,9 +163,22 @@ function App() {
       <br/>
       <br/>
       <br/>
-      {showChart && <BezierCurves data={arrayPoint}/> }
-      <br/>
-      {showChart && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
+      {showChart && !typeSearch && <DnCurves 
+                          data={curvePoint} 
+                          control={arrayPoint} 
+                          iterate={enteredPoint_Iterate.Iteration}
+                          time={timeElapse}
+                          type={0}
+        />}
+      {showChart && typeSearch && <DnCurves 
+                          data={curvePoint} 
+                          control={arrayPoint} 
+                          iterate={enteredPoint_Iterate.Iteration}
+                          time={timeElapse}
+                          type={1}
+        />}
+        <br/>
+      {showChart && typeSearch && <BezierCurves data={arrayPoint}/> }
     </section>
   );
 }

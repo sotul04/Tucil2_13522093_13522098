@@ -67,7 +67,7 @@ function getMainView(corner) {
   }
   let dx = max_x-min_x;
   let dy = max_y-min_y;
-  return [min_x-0.09*dx, max_x+0.09*dx, min_y-0.09*dy, max_y+0.09*dy];
+  return [min_x-0.1*dx, max_x+0.1*dx, min_y-0.1*dy, max_y+0.1*dy];
 }
 
 export default function BezierCurves({ data }) {
@@ -161,6 +161,7 @@ export default function BezierCurves({ data }) {
 
   return (
     <div id="bjir">
+      <p>Plot</p>
       <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{ min: 0.001, max: 5 }}>
         <Coordinates.Cartesian
           xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
