@@ -77,7 +77,7 @@ func (bp BezierPoints) DrawCurveBruteForce(n_point int) BezierPoints {
 		sketch.Stroke()
 	}
 
-	if err := sketch.SavePNG("dummy/bezier_curve_brute_force.png"); err != nil {
+	if err := sketch.SavePNG("dummy/bruteforce/bezier_curve_brute_force.png"); err != nil {
 		fmt.Println("Error saving PNG:", err)
 	}
 

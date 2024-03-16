@@ -98,7 +98,7 @@ func DrawSketch(points, corner BezierPoints, iter int) {
 			newSketch.Stroke()
 		}
 
-		if err := newSketch.SavePNG("dummy/bezier_curve_" + strconv.Itoa(i) + ".png"); err != nil {
+		if err := newSketch.SavePNG("dummy/dnc/bezier_curve_" + strconv.Itoa(i) + ".png"); err != nil {
 			fmt.Println("Error saving PNG:", err)
 		}
 	}

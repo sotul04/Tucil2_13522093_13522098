@@ -1,8 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
-import { Point } from "mafs";
 import DnCurves from "./components/dncCurve";
 import BFCurves from "./components/Curve";
 import InputFields from "./components/InputFields";
@@ -18,6 +17,8 @@ function App() {
     status: undefined //undefined belum masukin points, preview = udah masukin point, DnC = mau liat algorithm DnC, BF = mau liat algoritma brute force  
   });
   const [curvePoint, setCurvePoint] = useState([]);
+  const [typeSearch, setTypeSearch] = useState(false);
+  const [timeElapse, setTimeElapsed] = useState(0);
 
   const handleInputChange = (index, value) => {
     let newValueX = parseFloat(value[0])
@@ -61,6 +62,13 @@ function App() {
     });
   }
 
+  const handleCheckboxChange = () => {
+    console.log('Before: ', typeSearch);
+    var temp = typeSearch;
+    setTypeSearch((prevState) => !prevState);
+    console.log('After: ', typeSearch);
+  };
+
   const handleClick = async () => {
     console.log("Chart clicked");
 
@@ -75,8 +83,11 @@ function App() {
       iteration: parseInt(enteredPoint_Iterate.Iteration)
     };
 
+    let typeEndPoint = typeSearch ? "http://localhost:8080/brute-force" : "http://localhost:8080/devidenconquer" ;
+
+    console.log(typeEndPoint);
     try {
-        const response = await fetch("http://localhost:8080/find-curve", {
+        const response = await fetch(typeEndPoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -87,12 +98,13 @@ function App() {
         if (!response.ok) {
           throw new Error("Failed to upload data");
         }
-          
+        
         const data = await response.json();
-        console.log("testttttt",data.points);
+        console.log(data.points);
+        console.log("Elapsed time: ",data.time, "ms");
+        setTimeElapsed(parseFloat(data.time));
         const tempcurve = [];
         for (let i = 0; i < data.points.length; i++) {
-          console.log(data.points[i].x, data.points[i].Y);
           tempcurve.push([parseFloat(data.points[i].x), parseFloat(data.points[i].Y)]);
         }
         setCurvePoint(tempcurve);
@@ -109,6 +121,15 @@ function App() {
   return (
     <section id="player">
       <Header />
+      <br/>
+      <div className='type-search'>
+          <p>Devide n Conquer</p>
+          <label className='switch'>
+            <input type='checkbox' checked={typeSearch} onChange={handleCheckboxChange}></input>
+            <span className='slider'></span>
+          </label>
+          <p>Brute Force</p>
+        </div>
       <Input 
         title="N Points" 
         value={enteredPoint_Iterate.Points} 
@@ -128,10 +149,30 @@ function App() {
       <button onClick={handleClick}>CHART!!!</button>
       {/* {showChart && enteredPoint_Iterate.Points > 0 && <Chart data={arrayPoint} />} */}
 
-      {showChart.status === "PreView" && <Chart data={arrayPoint} />}
+      {/* {showChart.status === "PreView" && <Chart data={arrayPoint} />}
       {showChart.status === "BF" && <BFCurves data={arrayPoint}/>}
       {showChart.status === "DnC" && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
-      <Test />
+      <Test /> */}
+      {/* {showChart && <Chart data={arrayPoint} />} */}
+      <br/>
+      <br/>
+      <br/>
+      {showChart && !typeSearch && <DnCurves 
+                          data={curvePoint} 
+                          control={arrayPoint} 
+                          iterate={enteredPoint_Iterate.Iteration}
+                          time={timeElapse}
+                          type={0}
+        />}
+      {showChart && typeSearch && <DnCurves 
+                          data={curvePoint} 
+                          control={arrayPoint} 
+                          iterate={enteredPoint_Iterate.Iteration}
+                          time={timeElapse}
+                          type={1}
+        />}
+        <br/>
+      {showChart && typeSearch && <BezierCurves data={arrayPoint}/> }
     </section>
   );
 }
