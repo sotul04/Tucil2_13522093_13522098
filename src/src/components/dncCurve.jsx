@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Coordinates, Line, Mafs, Point, Theme, Text, useStopwatch } from "mafs";
-import { easeInOutCubic } from "js-easing-functions";
 
 function inPairs(arr) {
   const pairs = [];
@@ -34,9 +33,9 @@ function getMainView(corner) {
 
 export default function DnCurves({ data, control, iterate }) {
   const [t, setT] = useState(0.5); // State for controlling opacity
-  const [iter, setIter] = useState(iterate);
-  const [linePoints, setLinePoints] = useState([]);
-  const [viewContent, setViewContent] = useState([]);
+  const [iter, setIter] = useState(iterate); //show what iteration to show
+  const [linePoints, setLinePoints] = useState([]); //point to draw
+  const [viewContent, setViewContent] = useState([]); // kerjaan suta blok
 
   const opacity = 1 - (2 * t - 1) ** 6;
 
@@ -53,6 +52,7 @@ export default function DnCurves({ data, control, iterate }) {
   function refreshLines() {
     const newLines = [];
     let step = Math.pow(2, iterate - iter);
+    console.log("step: ",iterate, iter)
     for (let i = 0; i < data.length; i += step) {
       newLines.push(data[i]);
     }
@@ -74,7 +74,7 @@ export default function DnCurves({ data, control, iterate }) {
   function pointPositoin(points, color, size) {
     return points.map(([x,y]) => (
       <Text 
-        key={`${x}_${y}`}
+        key={`${x}_${y}`} //bisa nabrak kalo ada yang masukin sama
         x={x}
         y={y}
         color={color}
@@ -120,7 +120,7 @@ export default function DnCurves({ data, control, iterate }) {
         {drawPoints(linePoints, 3, Theme.green)}
         {drawLineSegments(cornerPoints, Theme.blue)}
         {drawPoints(cornerPoints,5,Theme.pink)}
-        {pointPositoin(cornerPoints,Theme.foreground,12)}
+        {pointPositoin(cornerPoints,Theme.white,12)}
       </Mafs>
       </div>
       <br/>

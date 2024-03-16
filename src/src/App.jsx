@@ -1,58 +1,23 @@
 import { useState } from "react";
-import InputXY from "./components/InputXY";
 import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
 import { Point } from "mafs";
 import DnCurves from "./components/dncCurve";
-import BezierCurves from "./components/Curve";
+import BFCurves from "./components/Curve";
+import InputFields from "./components/InputFields";
+import Test from "./components/test"
 function App() {
   const [enteredPoint_Iterate, setEnteredPoint_Iterate] = useState({
     Points: 0,
     Iteration: 0
   })
   const [arrayPoint, setArrayPoint] = useState([])
-  const [showChart,setShowChart] = useState(false);
+  // const [showChart,setShowChart] = useState(false)
+  const [showChart,setShowChart] = useState({
+    status: undefined //undefined belum masukin points, preview = udah masukin point, DnC = mau liat algorithm DnC, BF = mau liat algoritma brute force  
+  });
   const [curvePoint, setCurvePoint] = useState([]);
-  const renderInputFields = () => {
-    let nContent = 0
-    let nRest = 0
-    if (enteredPoint_Iterate.Points % 5 == 0){
-      nContent = enteredPoint_Iterate.Points / 5;
-    } else {
-      nContent = Math.floor(enteredPoint_Iterate.Points /5)
-      nRest = enteredPoint_Iterate.Points % 5
-    }
-    return(
-      <div id="challenges">
-        {Array.from({length: nContent},(_,arridx) => (
-          <section className="challenge" key={arridx}>
-            {Array.from({length: 5},(_,index) =>(
-              <InputXY
-                index={arridx*5 + index}
-                key={index}
-                valuePoint={arrayPoint[arridx*5 + index]}
-                onChangeValue={handleInputChange}
-                type="number"
-              />
-            ))}
-          </section>
-        ))}
-        {nRest > 0 && 
-        <section className="challenge" >
-          {Array.from({length: nRest},(_,index) =>(
-            <InputXY 
-              index={(nContent)*5 + index}
-              key={(nContent)*5 + index}
-              valuePoint={arrayPoint[(nContent)*5 + index]}
-              onChangeValue={handleInputChange}
-              type="number"
-            />
-          ))}
-        </section>}
-      </div>
-    )
-  }
 
   const handleInputChange = (index, value) => {
     let newValueX = parseFloat(value[0])
@@ -61,7 +26,11 @@ function App() {
     const newArrayPoint = [...arrayPoint];
     newArrayPoint[index] = newValue;
     setArrayPoint(newArrayPoint);
-    setShowChart(true);
+    setShowChart(() => {
+      return {
+        status : "PreView"
+      }
+    });
   }
 
   function handleChangePoints(event) {
@@ -94,7 +63,6 @@ function App() {
 
   const handleClick = async () => {
     console.log("Chart clicked");
-    setShowChart(false);
 
     if (enteredPoint_Iterate.Points < 2) {
         console.log("n_point is unallowed");
@@ -121,7 +89,7 @@ function App() {
         }
           
         const data = await response.json();
-        console.log(data.points);
+        console.log("testttttt",data.points);
         const tempcurve = [];
         for (let i = 0; i < data.points.length; i++) {
           console.log(data.points[i].x, data.points[i].Y);
@@ -129,7 +97,11 @@ function App() {
         }
         setCurvePoint(tempcurve);
         console.log("Curve Point:", curvePoint);
-        setShowChart(true);
+        setShowChart(() => {
+          return {
+            status : "DnC"
+          }
+        });
     } catch (error) {
         console.error("Error uploading data:", error.message);
     }
@@ -152,22 +124,16 @@ function App() {
           }}
         )}
       />
-      {enteredPoint_Iterate.Points >= 2 && renderInputFields()}
-      {/* {console.log(arrayPoint)} */}
+      {enteredPoint_Iterate.Points >= 2 && <InputFields nPoints={enteredPoint_Iterate.Points} data={arrayPoint} onChangeValue={handleInputChange}/>}
       <button onClick={handleClick}>CHART!!!</button>
-      {showChart && enteredPoint_Iterate.Points > 0 && <Chart data={arrayPoint} />
-}    </section>
-      {/* {showChart && <Chart data={arrayPoint} />} */}
-      <br/>
-      <br/>
-      <br/>
-      {showChart && <BezierCurves data={arrayPoint}/> }
-      // <br/>
-      // {showChart && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
+      {/* {showChart && enteredPoint_Iterate.Points > 0 && <Chart data={arrayPoint} />} */}
+
+      {showChart.status === "PreView" && <Chart data={arrayPoint} />}
+      {showChart.status === "BF" && <BFCurves data={arrayPoint}/>}
+      {showChart.status === "DnC" && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
+      <Test />
     </section>
   );
 }
 
 export default App;
-
-// N Points minus muncul pop up

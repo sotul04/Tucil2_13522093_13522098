@@ -155,6 +155,7 @@ header p {
 }
 
 .result-modal {
+  height: 500px;
   border: none;
   border-radius: 8px;
   padding: 2rem;
