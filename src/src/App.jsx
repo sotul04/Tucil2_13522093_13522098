@@ -135,7 +135,7 @@ function App() {
         data={curvePoint} 
         control={arrayPoint} 
         iterate={enteredPoint_Iterate.Iteration}
-        time={timeElapse}
+        time={timeElapse/1000}
         type={0}
       />}
       {showChart && 
@@ -144,7 +144,7 @@ function App() {
         data={curvePoint} 
         control={arrayPoint} 
         iterate={enteredPoint_Iterate.Iteration}
-        time={timeElapse}
+        time={timeElapse/1000}
         type={1}
       />}
       {showChart && typeSearch && <BFCurves data={arrayPoint}/> }

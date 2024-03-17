@@ -70,6 +70,11 @@ function getMainView(corner) {
   return [min_x-0.1*dx, max_x+0.1*dx, min_y-0.1*dy, max_y+0.1*dy];
 }
 
+function isPreferred(range, num) {
+  return num%range == 0;
+}
+
+
 export default function BezierCurves({ data }) {
   const [t, setT] = useState(0.5);
   const [viewContent, setViewContent] = useState([]);
@@ -162,10 +167,10 @@ export default function BezierCurves({ data }) {
   return (
     <div id="bjir">
       <p>Plot</p>
-      <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{ min: 0.001, max: 5 }}>
+      <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{min:0.7,max:5}} >
         <Coordinates.Cartesian
-          xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
-          yAxis={{ lines: (viewContent[1]-viewContent[0])/20,labels: false, axis: false }}
+          xAxis={{ lines: Math.ceil((viewContent[1]-viewContent[0])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[1]-viewContent[0])/10), n) ? n.toFixed(2) : "")}}
+          yAxis={{ lines: Math.ceil((viewContent[3]-viewContent[2])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[3]-viewContent[2])/10), n) ? n.toFixed(2) : "")}}
         />
 
         {drawAllLine(
@@ -199,7 +204,6 @@ export default function BezierCurves({ data }) {
 
         {pointPosition(Theme.foreground, 12)}
 
-        {/* {movablePoints.map(point => point.element)} */}
         {drawPoints(6,Theme.indigo)}
       </Mafs>
       <br/>
