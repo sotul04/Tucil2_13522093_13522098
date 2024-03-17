@@ -87,7 +87,7 @@ export default function BezierCurves({ data }) {
     endTime: duration,
   });
   useEffect(() => {
-    setTimeout(() => start(), 1500);
+    setTimeout(() => start(), 1000);
   }, [start]);
 
   useEffect(() => {
