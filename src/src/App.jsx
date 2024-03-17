@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
@@ -17,6 +17,7 @@ function App() {
   const [typeSearch, setTypeSearch] = useState(false);
   const [timeElapse, setTimeElapsed] = useState(0);
 
+
   const handleInputChange = (index, value) => {
     let newValueX = parseFloat(value[0])
     let newValueY = parseFloat(value[1])
@@ -24,7 +25,6 @@ function App() {
     const newArrayPoint = [...arrayPoint];
     newArrayPoint[index] = newValue;
     setArrayPoint(newArrayPoint);
-    setShowChart(true)
   }
 
   function handleChangePoints(event) {
@@ -114,7 +114,7 @@ function App() {
         title="N Points" 
         value={enteredPoint_Iterate.Points} 
         onChange={handleChangePoints}
-      />
+        />
       <Input 
         title="Iteration" 
         value={enteredPoint_Iterate.Iteration} 
@@ -123,21 +123,21 @@ function App() {
             ...prevState,
             Iteration: event.target.value
           }}
-        )}
-      />
+          )}
+          />
+      {(enteredPoint_Iterate.Points < 2 || enteredPoint_Iterate.Iteration < 1) ? <h2>Please enter a valid number</h2>: 
+      <Button onClick={handleClick} type={typeSearch} onChangeToggle={handleCheckboxChange}/>}
       {enteredPoint_Iterate.Points >= 2 && <InputFields nPoints={enteredPoint_Iterate.Points} data={arrayPoint} onChangeValue={handleInputChange}/>}
-      <Button onClick={handleClick} type={typeSearch} onChangeToggle={handleCheckboxChange}/>
-      {/* {showChart && enteredPoint_Iterate.Points > 0 && <Chart data={arrayPoint} />} */}
-
-      {/* {showChart.status === "PreView" && <Chart data={arrayPoint} />}
-      {showChart.status === "BF" && <BFCurves data={arrayPoint}/>}
-      {showChart.status === "DnC" && <DnCurves data={curvePoint} control={arrayPoint} iterate={enteredPoint_Iterate.Iteration}/>}
-      <Test /> */}
-      {/* {showChart && <Chart data={arrayPoint} />} */}
-      <br/>
-      <br/>
-      <br/>
-      {/* {showChart && !typeSearch && <BFCurves data={curvePoint} />} */}
+      {enteredPoint_Iterate.Points >= 2 && !showChart && <Chart data={arrayPoint} />}
+      {showChart && 
+       !typeSearch && 
+       <DnCurves 
+        data={curvePoint} 
+        control={arrayPoint} 
+        iterate={enteredPoint_Iterate.Iteration}
+        time={timeElapse}
+        type={0}
+      />}
       {showChart && 
        typeSearch && 
        <DnCurves 
@@ -147,8 +147,7 @@ function App() {
         time={timeElapse}
         type={1}
       />}
-        <br/>
-      {/* {showChart && typeSearch && <BFCurves data={arrayPoint}/> } */}
+      {showChart && typeSearch && <BFCurves data={arrayPoint}/> }
     </section>
   );
 }

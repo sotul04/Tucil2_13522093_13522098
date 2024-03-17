@@ -1,17 +1,5 @@
-import { Mafs, Line, Theme, Polyline, Coordinates, useMovablePoint } from "mafs";
+import { Mafs, Theme, Polyline, Coordinates, } from "mafs";
 export default function Chart({data}){
-
-    function getDataPoint(){
-        let newDataPoints = Array.from({length: data.length},(_,index) =>
-        (
-            useMovablePoint(data[index]).point
-        ))
-
-        console.log('data : ',data);
-        console.log('newDataPoints : ',newDataPoints);
-        return newDataPoints
-    }
-
     function handleMin(data,status){
         if (status == 'x'){
             let min = data[0][0]
@@ -63,10 +51,8 @@ export default function Chart({data}){
                 <Coordinates.Cartesian/>
                 <Polyline 
                     points={data}
-                    // points={getDataPoint()}
                     color={Theme.blue}
                 />
-                {getDataPoint()}    
             </Mafs>
         </>
     );
