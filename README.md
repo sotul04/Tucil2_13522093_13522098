@@ -40,6 +40,9 @@ npm install
 npm run start
 ```
 ### 4. Allow access
+```bash
+Click Allow Button
+```
 <img src="./Allow-Access.png" width="440" >
 
 ## Creator
