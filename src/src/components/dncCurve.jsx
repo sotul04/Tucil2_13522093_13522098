@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Coordinates, Line, Mafs, Point, Theme, Text, useStopwatch } from "mafs";
+import { Coordinates, Line, Mafs, Point, Theme, Text, } from "mafs";
 
 function inPairs(arr) {
   const pairs = [];
@@ -30,6 +30,11 @@ function getMainView(corner) {
   let dy = max_y-min_y;
   return [min_x-0.1*dx, max_x+0.1*dx, min_y-0.1*dy, max_y+0.1*dy];
 }
+
+function isPreferred(range, num) {
+  return num%range == 0;
+}
+
 
 export default function DnCurves({ data, control, iterate, time, type}) {
   const [iter, setIter] = useState(iterate);
@@ -71,9 +76,9 @@ export default function DnCurves({ data, control, iterate, time, type}) {
   }
 
   function pointPositoin(points, color, size) {
-    return points.map(([x,y]) => (
+    return points.map(([x,y], index) => (
       <Text 
-        key={`${x}_${y}`} //bisa nabrak kalo ada yang masukin sama
+        key={index}
         x={x}
         y={y}
         color={color}
@@ -108,12 +113,12 @@ export default function DnCurves({ data, control, iterate, time, type}) {
       <div className="rounded">
         <p>Time Elapsed: {time}ms</p>
       <Mafs 
-        viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} 
-        zoom={{ min: 0.001, max: 5 }}
+        viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }}
+        zoom={{min:0.7,max:5}} 
       >
         <Coordinates.Cartesian
-          xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
-          yAxis={{ lines: (viewContent[1]-viewContent[0])/20,labels: false, axis: false }}
+          xAxis={{ lines: Math.ceil((viewContent[1]-viewContent[0])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[1]-viewContent[0])/10), n) ? n.toFixed(2) : "")}}
+          yAxis={{ lines: Math.ceil((viewContent[3]-viewContent[2])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[3]-viewContent[2])/10), n) ? n.toFixed(2) : "")}}
         />
         {drawLineSegments(linePoints, Theme.indigo)}
         {drawPoints(linePoints, 3, Theme.green)}

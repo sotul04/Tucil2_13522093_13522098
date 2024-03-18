@@ -70,17 +70,22 @@ function getMainView(corner) {
   return [min_x-0.1*dx, max_x+0.1*dx, min_y-0.1*dy, max_y+0.1*dy];
 }
 
+function isPreferred(range, num) {
+  return num%range == 0;
+}
+
+
 export default function BezierCurves({ data }) {
   const [t, setT] = useState(0.5);
   const [viewContent, setViewContent] = useState([]);
   const opacity = 1 - (2 * t - 1) ** 6;
 
-  const movablePoints = data.map(([x, y]) => useMovablePoint([x, y]));
+  const points = data.map(p => p);
 
-  const corner = movablePoints.map(point => point.point);
+  const corner = points.map(point => point);
   const collection = [corner];
 
-  getStepLine(collection, movablePoints.length, 0, t);
+  getStepLine(collection, points.length, 0, t);
 
   const duration = 2;
   const { time, start } = useStopwatch({
@@ -95,7 +100,7 @@ export default function BezierCurves({ data }) {
   }, [time]);
 
   useEffect(() => {
-    setViewContent(getMainView(data)); // Move viewContent logic into useEffect
+    setViewContent(getMainView(data));
   }, [data]);
 
   function drawAllLine(collection, color, customOpacity = opacity * 0.5) {
@@ -111,26 +116,27 @@ export default function BezierCurves({ data }) {
   }
 
   function pointPosition(color, size) {
-    return movablePoints.map(point => (
+    return points.map(([x,y], index) => (
       <Text 
-        x={point.x}
-        y={point.y}
+        key={index}
+        x={x}
+        y={y}
         color={color}
         size={size}
         attach="w"
         attachDistance={15}
       >
-        ({point.x.toFixed(1)}, {point.y.toFixed(1)})
+        ({x.toFixed(1)}, {y.toFixed(1)})
       </Text>
     ));
   }
 
   function drawPoints(rad, color) {
-    return movablePoints.map((point, index) => (
+    return points.map(([x,y], index) => (
       <Point
         key={index}
-        x={point.x}
-        y={point.y}
+        x={x}
+        y={y}
         svgCircleProps={{ r: rad }}
         color={color}
       />
@@ -162,10 +168,10 @@ export default function BezierCurves({ data }) {
   return (
     <div id="bjir">
       <p>Plot</p>
-      <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{ min: 0.001, max: 5 }}>
+      <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{min:0.7,max:5}} >
         <Coordinates.Cartesian
-          xAxis={{ lines: (viewContent[1]-viewContent[0])/20, labels: false, axis: false }}
-          yAxis={{ lines: (viewContent[1]-viewContent[0])/20,labels: false, axis: false }}
+          xAxis={{ lines: Math.ceil((viewContent[1]-viewContent[0])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[1]-viewContent[0])/10), n) ? n.toFixed(2) : "")}}
+          yAxis={{ lines: Math.ceil((viewContent[3]-viewContent[2])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[3]-viewContent[2])/10), n) ? n.toFixed(2) : "")}}
         />
 
         {drawAllLine(
@@ -181,7 +187,7 @@ export default function BezierCurves({ data }) {
           weight={3}
           color={Theme.red}
           xy={(t) =>
-            findCurve(corner, movablePoints.length, t)
+            findCurve(corner, points.length, t)
           }
         />
 
@@ -191,7 +197,7 @@ export default function BezierCurves({ data }) {
           opacity={0.5}
           style="dashed"
           xy={(t) =>
-            findCurve(corner, movablePoints.length, t)
+            findCurve(corner, points.length, t)
           }
         />
 
@@ -199,7 +205,6 @@ export default function BezierCurves({ data }) {
 
         {pointPosition(Theme.foreground, 12)}
 
-        {/* {movablePoints.map(point => point.element)} */}
         {drawPoints(6,Theme.indigo)}
       </Mafs>
       <br/>

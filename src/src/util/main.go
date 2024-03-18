@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 
 	"util/bezier"
@@ -53,34 +51,17 @@ func handleDnC(c *gin.Context) {
 		curvePointer.InsertLast(bezier.Point{X: i[0], Y: i[1]})
 	}
 
-	directory := "dummy/dnc/"
-
-	files, err := os.ReadDir(directory)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	for _, file := range files {
-		filePath := filepath.Join(directory, file.Name())
-		err := os.Remove(filePath)
-		if err != nil {
-			fmt.Printf("Error removing %s: %v\n", filePath, err)
-		}
-	}
-
 	start := time.Now()
 
 	poinnt := curvePointer.FindCurve(reqBody.Iteration)
-	bezier.DrawSketch(poinnt, curvePointer, reqBody.Iteration)
 
 	elapsedTime := time.Since(start)
 
-	fmt.Println("Elapsed Time: ", elapsedTime, "ms")
+	fmt.Println("Elapsed Time: ", elapsedTime)
 
 	response := Response{
 		Points: poinnt.List,
-		Time:   float64(elapsedTime.Milliseconds()),
+		Time:   float64(elapsedTime.Microseconds()),
 	}
 
 	responseJSON, err := json.Marshal(response)
@@ -108,22 +89,6 @@ func handleBF(c *gin.Context) {
 		curvePointer.InsertLast(bezier.Point{X: i[0], Y: i[1]})
 	}
 
-	directory := "dummy/bruteforce/"
-
-	files, err := os.ReadDir(directory)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	for _, file := range files {
-		filePath := filepath.Join(directory, file.Name())
-		err := os.Remove(filePath)
-		if err != nil {
-			fmt.Printf("Error removing %s: %v\n", filePath, err)
-		}
-	}
-
 	start := time.Now()
 
 	poinnt := curvePointer.DrawCurveBruteForce(int(math.Pow(2, float64(reqBody.Iteration)) + 1))
@@ -132,12 +97,12 @@ func handleBF(c *gin.Context) {
 
 	response := Response{
 		Points: poinnt.List,
-		Time:   float64(elapsedTime.Milliseconds()),
+		Time:   float64(elapsedTime.Microseconds()),
 	}
 
 	responseJSON, err := json.Marshal(response)
 
-	fmt.Println("Elapsed Time: ", elapsedTime, "ms")
+	fmt.Println("Elapsed Time: ", elapsedTime)
 
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
