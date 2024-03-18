@@ -40,7 +40,7 @@ npm install
 npm run start
 ```
 ### 4. Allow access
-<img src="./Allow-Access.png" width="440>
+<img src="./Allow-Access.png" width="440" >
 
 ## Creator
 <div align="center" id="contributor">
