@@ -16,9 +16,9 @@ func FindPoints(bp BezierPoints, iter, maXIter int) BezierPoints {
 	leftPoints := FindPoints(left, iter+1, maXIter)
 	rightPoints := FindPoints(right, iter+1, maXIter)
 
-	mid.InsertBefore(leftPoints)
 	mid.InsertAfter(rightPoints)
-	return mid
+	leftPoints.InsertAfter(mid)
+	return leftPoints
 }
 
 func FindMidPoint(bp BezierPoints) (BezierPoints, BezierPoints, BezierPoints) {
