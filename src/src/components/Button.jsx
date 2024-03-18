@@ -2,7 +2,7 @@ export default function Button({onClick, type, onChangeToggle}){
     return(
         <>
         <p>
-            <h2>Devide n Conquer</h2>
+            <h2>Divide n Conquer</h2>
             <label className='switch'>
               <input type='checkbox' checked={type} onChange={onChangeToggle}></input>
               <span className='slider'></span>
