@@ -83,8 +83,8 @@ export default function Chart({data}){
                 preserveAspectRatio={false}
             >
                 <Coordinates.Cartesian
-                    xAxis={{ lines: Math.ceil((mainView[1]-mainView[0])/10), labels: (n) => (isPreferred(Math.ceil((mainView[1]-mainView[0])/10), n) ? n.toFixed(2) : "")}}
-                    yAxis={{ lines: Math.ceil((mainView[3]-mainView[2])/10), labels: (n) => (isPreferred(Math.ceil((mainView[3]-mainView[2])/10), n) ? n.toFixed(2) : "")}}
+                    xAxis={{ lines: Math.ceil((mainView[1]-mainView[0])/10), labels: (n) => (isPreferred(Math.ceil((mainView[1]-mainView[0])/10), n) ? n.toFixed(0) : "")}}
+                    yAxis={{ lines: Math.ceil((mainView[3]-mainView[2])/10), labels: (n) => (isPreferred(Math.ceil((mainView[3]-mainView[2])/10), n) ? n.toFixed(0) : "")}}
                 />
                 <Polyline 
                     points={data}

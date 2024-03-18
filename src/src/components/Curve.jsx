@@ -170,8 +170,8 @@ export default function BezierCurves({ data }) {
       <p>Plot</p>
       <Mafs viewBox={{ x: [viewContent[0], viewContent[1]], y: [viewContent[2], viewContent[3]] }} zoom={{min:0.7,max:5}} >
         <Coordinates.Cartesian
-          xAxis={{ lines: Math.ceil((viewContent[1]-viewContent[0])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[1]-viewContent[0])/10), n) ? n.toFixed(2) : "")}}
-          yAxis={{ lines: Math.ceil((viewContent[3]-viewContent[2])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[3]-viewContent[2])/10), n) ? n.toFixed(2) : "")}}
+          xAxis={{ lines: Math.ceil((viewContent[1]-viewContent[0])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[1]-viewContent[0])/10), n) ? n.toFixed(0) : "")}}
+          yAxis={{ lines: Math.ceil((viewContent[3]-viewContent[2])/10), labels: (n) => (isPreferred(Math.ceil((viewContent[3]-viewContent[2])/10), n) ? n.toFixed(0) : "")}}
         />
 
         {drawAllLine(
