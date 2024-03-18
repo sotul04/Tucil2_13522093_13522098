@@ -76,9 +76,9 @@ export default function DnCurves({ data, control, iterate, time, type}) {
   }
 
   function pointPositoin(points, color, size) {
-    return points.map(([x,y]) => (
+    return points.map(([x,y], index) => (
       <Text 
-        key={`${x}_${y}`}
+        key={index}
         x={x}
         y={y}
         color={color}

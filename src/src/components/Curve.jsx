@@ -80,12 +80,12 @@ export default function BezierCurves({ data }) {
   const [viewContent, setViewContent] = useState([]);
   const opacity = 1 - (2 * t - 1) ** 6;
 
-  const movablePoints = data.map(([x, y]) => useMovablePoint([x, y]));
+  const points = data.map(p => p);
 
-  const corner = movablePoints.map(point => point.point);
+  const corner = points.map(point => point);
   const collection = [corner];
 
-  getStepLine(collection, movablePoints.length, 0, t);
+  getStepLine(collection, points.length, 0, t);
 
   const duration = 2;
   const { time, start } = useStopwatch({
@@ -100,7 +100,7 @@ export default function BezierCurves({ data }) {
   }, [time]);
 
   useEffect(() => {
-    setViewContent(getMainView(data)); // Move viewContent logic into useEffect
+    setViewContent(getMainView(data));
   }, [data]);
 
   function drawAllLine(collection, color, customOpacity = opacity * 0.5) {
@@ -116,26 +116,27 @@ export default function BezierCurves({ data }) {
   }
 
   function pointPosition(color, size) {
-    return movablePoints.map(point => (
+    return points.map(([x,y], index) => (
       <Text 
-        x={point.x}
-        y={point.y}
+        key={index}
+        x={x}
+        y={y}
         color={color}
         size={size}
         attach="w"
         attachDistance={15}
       >
-        ({point.x.toFixed(1)}, {point.y.toFixed(1)})
+        ({x.toFixed(1)}, {y.toFixed(1)})
       </Text>
     ));
   }
 
   function drawPoints(rad, color) {
-    return movablePoints.map((point, index) => (
+    return points.map(([x,y], index) => (
       <Point
         key={index}
-        x={point.x}
-        y={point.y}
+        x={x}
+        y={y}
         svgCircleProps={{ r: rad }}
         color={color}
       />
@@ -186,7 +187,7 @@ export default function BezierCurves({ data }) {
           weight={3}
           color={Theme.red}
           xy={(t) =>
-            findCurve(corner, movablePoints.length, t)
+            findCurve(corner, points.length, t)
           }
         />
 
@@ -196,7 +197,7 @@ export default function BezierCurves({ data }) {
           opacity={0.5}
           style="dashed"
           xy={(t) =>
-            findCurve(corner, movablePoints.length, t)
+            findCurve(corner, points.length, t)
           }
         />
 

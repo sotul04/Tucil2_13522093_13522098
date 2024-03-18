@@ -3,7 +3,7 @@ import Header from "./components/Header";
 import Input from "./components/Input";
 import Chart from "./components/Chart";
 import DnCurves from "./components/dncCurve";
-import BFCurves from "./components/Curve";
+import BezierCurves from "./components/Curve";
 import InputFields from "./components/InputFields";
 import Button from "./components/Button";
 function App() {
@@ -57,7 +57,6 @@ function App() {
 
   const handleCheckboxChange = () => {
     console.log('Before: ', typeSearch);
-    var temp = typeSearch;
     setTypeSearch((prevState) => !prevState);
     console.log('After: ', typeSearch);
   };
@@ -147,7 +146,7 @@ function App() {
         time={timeElapse/1000}
         type={1}
       />}
-      {showChart && typeSearch && <BFCurves data={arrayPoint}/> }
+      {showChart && typeSearch && <BezierCurves data={arrayPoint}/> }
     </section>
   );
 }
